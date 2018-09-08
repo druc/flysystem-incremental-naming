@@ -7,23 +7,7 @@
 [![Quality Score][ico-code-quality]][link-code-quality]
 [![Total Downloads][ico-downloads]][link-downloads]
 
-**Note:** Replace ```Constantin Druc``` ```druc``` ```https://pinsmile.com``` ```druc@pinsmile.com``` ```druc``` ```flysystem-incremental-naming``` ```Flysystem plugins to increment file names when dealing with duplicates``` with their correct values in [README.md](README.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md), [LICENSE.md](LICENSE.md) and [composer.json](composer.json) files, then delete this line. You can run `$ php prefill.php` in the command line to make all replacements at once. Delete the file prefill.php as well.
-
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what
-PSRs you support to avoid any confusion with users and contributors.
-
-## Structure
-
-If any of the following are applicable to your project, then the directory structure should follow industry best practices by being named the following.
-
-```
-bin/        
-config/
-src/
-tests/
-vendor/
-```
-
+Flysystem plugins to increment file names when dealing with duplicates
 
 ## Install
 
@@ -36,8 +20,29 @@ $ composer require druc/flysystem-incremental-naming
 ## Usage
 
 ``` php
-$skeleton = new Druc\Flysystem\IncrementalNaming();
-echo $skeleton->echoPhrase('Hello, League!');
+<?php
+use Druc\Flysystem\IncrementalNaming\IncrementedCopy;
+use Druc\Flysystem\IncrementalNaming\IncrementedRename;
+use Druc\Flysystem\IncrementalNaming\IncrementedPath;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
+
+include __DIR__ . '/vendor/autoload.php';
+
+$adapter = new Local(__DIR__ . '/my-dir');
+$this->filesystem = new Filesystem($adapter);
+$this->filesystem->addPlugin(new IncrementedCopy);
+$this->filesystem->addPlugin(new IncrementedRename);
+$this->filesystem->addPlugin(new IncrementedPath);
+
+$filesystem = new Filesystem($adapter);
+
+// Filenames will be incremented when copying/renaming into a directory containing the same filename
+$filesystem->incrementedCopy('mydir/file', 'other-dir/file'); // 'other-dir/file_1'
+$filesystem->incrementedRename('mydir/file', 'other-dir/file'); // 'other-dir/file_1'
+
+// This returns 'other-dir/file_2' if 'file' and 'file_1' are already present
+$filesystem->getIncrementedPath('other-dir/file');
 ```
 
 ## Change log
